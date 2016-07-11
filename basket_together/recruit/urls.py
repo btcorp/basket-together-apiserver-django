@@ -14,16 +14,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url
-from recruit.views import post_list
+from recruit import views
 
 urlpatterns = [
     # url(r'^$', 'recruit.views.post_list', name='post_list'),
-    url(r'^posts/$', 'recruit.views.post_list', name='post_list'),
-    url(r'^post/add/$', 'recruit.views.post_add', name='post_add'),
-    url(r'^post/(?P<pk>\d+)/$', 'recruit.views.post_detail', name='post_detail'),
-    url(r'^post/(?P<pk>\d+)/edit/$', 'recruit.views.post_edit', name='post_edit'),
-    url(r'^post/(?P<pk>\d+)/remove/$', 'recruit.views.post_remove', name='post_remove'),
-    url(r'^post/(?P<pk>\d+)/comment/$', 'recruit.views.add_comment_to_post', name='add_comment_to_post'),
-    url(r'^search/$', 'recruit.views.post_search', name='post_search'),
-    url(r'^comment/(?P<pk>\d+)/remove/$', 'recruit.views.comment_remove', name='comment_remove'),
+    url(r'^posts/$', views.post_list, name='post_list'),
+    url(r'^post/add/$', views.post_add, name='post_add'),
+    url(r'^post/(?P<pk>\d+)/$', views.post_detail, name='post_detail'),
+    url(r'^post/(?P<pk>\d+)/edit/$', views.post_edit, name='post_edit'),
+    url(r'^post/(?P<pk>\d+)/remove/$', views.post_remove, name='post_remove'),
+    url(r'^post/(?P<pk>\d+)/comment/$', views.add_comment_to_post, name='add_comment_to_post'),
+    url(r'^search/$', views.post_search, name='post_search'),
+    url(r'^comment/(?P<pk>\d+)/remove/$', views.comment_remove, name='comment_remove'),
 ]

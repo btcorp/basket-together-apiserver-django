@@ -148,7 +148,7 @@ STATIC_URL = '/static/'
 
 # being searched dirs
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'basket_together', 'static'),
 ]
 
 # collectstatic dir

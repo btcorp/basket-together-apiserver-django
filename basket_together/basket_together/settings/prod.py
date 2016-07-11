@@ -13,8 +13,8 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', SECRET_KEY)
 DATABASES = {
     'default' : {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ubuntu_api',
-        'USER': 'ubuntu_api',
+        'NAME': 'ubuntu',
+        'USER': 'ubuntu',
         'PASSWORD': '1234qwer',
         'HOST': '127.0.0.1',
     }

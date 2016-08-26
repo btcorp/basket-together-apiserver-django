@@ -30,28 +30,26 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    #'rest_framework',
-    # 'rest_framework.authtoken',
+    'rest_framework',
+    'rest_framework.authtoken',
     # 'rest_auth',
     # 'allauth',
     # 'allauth.account',
     # 'rest_auth.registration',
     # 'custom_user',
     'recruit',
-    'user_profile',
+    'accounts',
 ]
 
-"""
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
     )
 }
-"""
 
 #############################  AUTH  ###################################
 
@@ -154,7 +152,7 @@ STATICFILES_DIRS = [
 # collectstatic dir
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-AUTH_PROFILE_MODULE = 'user_profile.UserProfile'
+AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 
 # LOGIN_REDIRECT_URL = '/'
 

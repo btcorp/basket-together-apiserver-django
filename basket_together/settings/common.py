@@ -3,7 +3,7 @@ import os
 from os.path import abspath, dirname
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = dirname(dirname(dirname(abspath(__file__))))
+BASE_DIR = abspath(dirname(dirname(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -99,8 +99,8 @@ WSGI_APPLICATION = 'basket_together.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'NAME': os.path.join(PROJECT_FOLDER, 'development.db'),
+        'NAME': os.path.join(BASE_DIR, '..', 'database/db.sqlite3'),
+        # 'NAME': os.path.join(PROJECT_FOLDER, 'development.db'),
     }
 }
 
@@ -150,11 +150,11 @@ STATICFILES_DIRS = [
 ]
 
 # collectstatic dir
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, '../static')
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 
 # LOGIN_REDIRECT_URL = '/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, '../media')
 MEDIA_URL = '/media/'

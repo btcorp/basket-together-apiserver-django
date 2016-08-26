@@ -1,0 +1,15 @@
+<html>
+    <body>
+        {% block content %}
+            <h2>Profile</h2>
+            {% for field in form %}
+                {{ field.error }}
+            {% endfor %}
+
+            <form action="/profile/" method="POST">{% csrf_token %}
+                {{ form.as_ul }}
+                <input type="SUBMIT" value="Update" />
+            </form>
+        {% endblock %}
+    </body>
+</html>

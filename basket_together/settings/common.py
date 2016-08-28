@@ -99,7 +99,7 @@ WSGI_APPLICATION = 'basket_together.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, '..', 'database/db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, '../../database/db.sqlite3'),
         # 'NAME': os.path.join(PROJECT_FOLDER, 'development.db'),
     }
 }
@@ -152,11 +152,11 @@ STATICFILES_DIRS = [
 '''
 
 # collectstatic dir
-STATIC_ROOT = os.path.join(BASE_DIR, '../static')
+STATIC_ROOT = os.path.join(BASE_DIR, '../../static')
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 
 # LOGIN_REDIRECT_URL = '/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, '../media')
+MEDIA_ROOT = os.path.join(BASE_DIR, '../../media')
 MEDIA_URL = '/media/'

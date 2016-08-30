@@ -2,6 +2,7 @@ import ast
 from accounts.forms import UserProfileForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms import model_to_dict
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render_to_response
@@ -25,16 +26,20 @@ def signup(request):
 
 @csrf_exempt
 def login_view(request):
-    username = request.POST['username']
-    password = request.POST['password']
+    byte_to_str = (request.body).decode('utf-8')
+    data = ast.literal_eval(byte_to_str)
+    username = data.get('username')
+    password = data.get('password')
     user = authenticate(username=username, password=password)
     if user is not None:
-        if user.auth_token is not None:
+        try:
             user.auth_token.delete()
+        except ObjectDoesNotExist:
+            pass
         login(request, user)
         return rest_views.ObtainAuthToken.as_view()(request)    # create token
     else:
-        JsonResponse({'error': '에러입니다.'})
+        return JsonResponse({'error': 'It is error.'})
 
 
 @csrf_exempt

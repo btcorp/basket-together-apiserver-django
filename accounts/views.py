@@ -1,5 +1,5 @@
 import ast
-from accounts.forms import UserProfileForm
+from accounts.forms import ProfileForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ObjectDoesNotExist
@@ -46,12 +46,12 @@ def login_view(request):
 @login_required
 def user_profile(request):
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=request.user.profile)
+        form = ProfileForm(request.POST, instance=request.user.profile)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('loggedin.html')
     else:
-        form = UserProfileForm(instance=request.user.profile)
+        form = ProfileForm(instance=request.user.profile)
 
     args = {}
     # args.update(csrf(request))

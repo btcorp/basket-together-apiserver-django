@@ -1,9 +1,9 @@
-from accounts.models import UserProfile
+from accounts.models import Profile
 from django import forms
 
 
-class UserProfileForm(forms.ModelForm):
+class ProfileForm(forms.ModelForm):
 
     class Meta:
-        model = UserProfile
+        model = Profile
         fields = ('phone_number', 'device_type',)

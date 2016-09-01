@@ -154,7 +154,7 @@ STATICFILES_DIRS = [
 # collectstatic dir
 STATIC_ROOT = os.path.join(BASE_DIR, '../../static')
 
-AUTH_PROFILE_MODULE = 'accounts.UserProfile'
+AUTH_PROFILE_MODULE = 'accounts.Profile'
 
 # LOGIN_REDIRECT_URL = '/'
 

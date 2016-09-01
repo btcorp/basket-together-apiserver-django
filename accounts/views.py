@@ -39,7 +39,7 @@ def login_view(request):
         login(request, user)
         return rest_views.ObtainAuthToken.as_view()(request)    # create token
     else:
-        return JsonResponse({'error': 'It is error.'})
+        return JsonResponse({'message': 'It is error.'})
 
 
 @csrf_exempt

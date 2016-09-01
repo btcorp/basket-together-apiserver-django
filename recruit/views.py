@@ -1,9 +1,11 @@
+import ast
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import JsonResponse
 from django.shortcuts import render, render_to_response, get_object_or_404, redirect
+from django.views.decorators.csrf import csrf_exempt
 from recruit.models import Post, Comment
 from recruit.forms import PostForm, CommentForm
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import get_user_model
-import ast
 
 """
 class JSONListView(ListView):
@@ -81,16 +83,18 @@ def post_remove(request, pk):
 @csrf_exempt
 def add_comment_to_post(request, pk):
     post = get_object_or_404(Post, pk=pk)
-    if request.method == 'POST':
-        form = CommentForm(request.POST)
-        comment = form.save(commit=False)
-        comment.author = request.user
-        comment.post = post
-        comment.save()
-        return redirect('recruit.views.post_detail', pk=pk)
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        try:
+            comment = form.save(commit=False)
+            comment.author = request.user
+            comment.post = post
+            comment.save()
+            return JsonResponse({'message': 'Comments were registed.'})
+        except ObjectDoesNotExist:
+            return JsonResponse({'message': 'Comments were not registed.'})
     else:
-        form = CommentForm()
-    return render(request, 'recruit/add_comment_to_post.html', {'form': form})
+        return JsonResponse({'message': 'Form data is invalid.'})
 
 
 def post_search(request):

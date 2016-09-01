@@ -99,17 +99,17 @@ WSGI_APPLICATION = 'basket_together.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, '../database/db_api.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, '../database/db.sqlite3'),
         'USER': 'test',
         'PASSWORD': '1234qwer'
     },
-    'web_server': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'NAME': os.path.join(BASE_DIR, '../database/db_web.sqlite3'),
-        'USER': 'test',
-        'PASSWORD': '1234qwer'
-    }
+    # 'web_server': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    #     'NAME': os.path.join(BASE_DIR, '../database/db_web.sqlite3'),
+    #     'USER': 'test',
+    #     'PASSWORD': '1234qwer'
+    # }
 }
 
 
@@ -160,11 +160,11 @@ STATICFILES_DIRS = [
 '''
 
 # collectstatic dir
-STATIC_ROOT = os.path.join(BASE_DIR, '../../static')
+STATIC_ROOT = os.path.join(BASE_DIR, '../static')
 
 AUTH_PROFILE_MODULE = 'accounts.Profile'
 
 # LOGIN_REDIRECT_URL = '/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, '../../media')
+MEDIA_ROOT = os.path.join(BASE_DIR, '../media')
 MEDIA_URL = '/media/'

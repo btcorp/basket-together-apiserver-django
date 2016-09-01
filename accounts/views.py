@@ -14,7 +14,8 @@ from rest_framework.decorators import api_view
 
 @csrf_exempt
 def signup(request):
-    data = ast.literal_eval(request.body)
+    bytes_to_string = (request.body).decode()
+    data = ast.literal_eval(bytes_to_string)
     form = UserCreationForm(data)
     if form.is_valid():
         user = form.save()
@@ -25,7 +26,8 @@ def signup(request):
 
 @csrf_exempt
 def login_view(request):
-    data = ast.literal_eval(request.body)
+    bytes_to_string = (request.body).decode()
+    data = ast.literal_eval(bytes_to_string)
     username = data.get('username')
     password = data.get('password')
     user = authenticate(username=username, password=password)

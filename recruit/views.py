@@ -78,6 +78,7 @@ def post_remove(request, pk):
     return redirect('recruit.views.post_list')
 
 
+@csrf_exempt
 def add_comment_to_post(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if request.method == 'POST':

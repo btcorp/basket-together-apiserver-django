@@ -47,8 +47,8 @@ def post_add(request):
     if request.method == 'POST':
         # bytes_to_dict = dict((request.body).decode('utf-8'))
         byte_to_str = (request.body).decode('utf-8')
-        str_to_dic = ast.literal_eval(byte_to_str)
-        form = PostForm(str_to_dic)
+        data = ast.literal_eval(byte_to_str)
+        form = PostForm(data)
         if form.is_valid():
             post = form.save(commit=False)
             user = get_user_model().objects.first()
@@ -82,8 +82,11 @@ def post_remove(request, pk):
 
 @csrf_exempt
 def add_comment_to_post(request, pk):
+    byte_to_str = (request.body).decode('utf-8')
+    data = ast.literal_eval(byte_to_str)
     post = get_object_or_404(Post, pk=pk)
-    form = CommentForm(request.POST)
+    form = CommentForm(content=data['content'])
+
     if form.is_valid():
         try:
             comment = form.save(commit=False)
@@ -95,6 +98,12 @@ def add_comment_to_post(request, pk):
             return JsonResponse({'message': 'Comments were not registed.'})
     else:
         return JsonResponse({'message': 'Form data is invalid.'})
+
+
+def comments_to_post(request, pk):
+    post = Post.objects.get(pk=pk)
+    comments = Comment.objects.filter(post=post)
+    return comments
 
 
 def post_search(request):

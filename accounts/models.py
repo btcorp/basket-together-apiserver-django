@@ -16,6 +16,10 @@ def phonenumber_validator(value):
 
 
 class PhoneNumberField(models.CharField):
+
+    class Meta:
+        managed = False     # 자동으로 테이블을 생성하지 않게 된다
+
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('max_length', 15)
         kwargs.setdefault('validators', [])
@@ -32,12 +36,16 @@ class Profile(models.Model):
     penalty_count = models.IntegerField(blank=True, default=0)
     user_image = models.ImageField(blank=True, upload_to='%Y/%m/%d')
 
+    class Meta:
+        managed = False     # 자동으로 테이블을 생성하지 않게 된다
+
 
 class Friendship(models.Model):
     from_friend = models.ForeignKey(User, related_name='from_friends')
     to_friend = models.ForeignKey(User, related_name='to_friends')
 
     class Meta:
+        managed = False  # 자동으로 테이블을 생성하지 않게 된다
         unique_together = (('from_friend', 'to_friend'), )
 
     def __str__(self):

@@ -17,6 +17,9 @@ class Post(models.Model):
     latlng = models.CharField(max_length=50, blank=True)
     meeting_date = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        managed = False     # 자동으로 테이블을 생성하지 않게 된다
+
     def __str__(self):
         return self.title
 

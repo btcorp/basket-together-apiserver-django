@@ -8,6 +8,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from recruit.models import Post, Comment, Participation
 from recruit.forms import PostForm, CommentForm
+from rest_framework.authtoken.models import Token
 
 MESSAGE_POST_ADD = '글이 등록 되었습니다.'
 MESSAGE_POST_EDIT = '글이 수정 되었습니다.'
@@ -19,8 +20,14 @@ MESSAGE_COMMENT_DELETE = '댓글이 삭제 되었습니다.'
 
 # byte to string 헬퍼 메서드
 def decoding_byte_to_string(byte_data):
-    bytes_to_string = byte_data.decode()
+    bytes_to_string = byte_data.decode('utf-8')
     return json.loads(bytes_to_string)
+
+
+# token 값으로 유저 출력
+def get_user_in_token(token):
+    token_ = Token.objects.get(pk=token)
+    return token_.user
 
 
 def post_list_all(request):
@@ -56,8 +63,7 @@ def post_add(request):
         form = PostForm(data)
         if form.is_valid():
             post = form.save(commit=False)
-            user = request.user
-            post.author = user
+            post.author = get_user_in_token(request.META.get('HTTP_TOKEN'))
             post.save()
             return JsonResponse({'message': MESSAGE_POST_ADD}, status=201)
         else:
@@ -91,7 +97,7 @@ def add_comment_to_post(request, pk):
 
     if form.is_valid():
         comment = form.save(commit=False)
-        comment.author = request.user
+        comment.author = get_user_in_token(request.META.get('HTTP_TOKEN'))
         comment.post = post
         comment.save()
         return JsonResponse({'message': MESSAGE_COMMENT_ADD})
@@ -120,17 +126,19 @@ def comment_remove(request, pk):
 
 
 def add_participation(request, pk):
+    user_ = get_user_in_token(request.META.get('HTTP_TOKEN'))
     post = get_object_or_404(Post, pk=pk)
     next_url = request.GET.get('next', '')
-    Participation.objects.create(post=post, user=request.user)
+    Participation.objects.create(post=post, user=user_)
     post.attend_count += 1
     post.save()
     return JsonResponse({'message': '참여가 완료 되었습니다.', 'next_url': next_url}, status=201)
 
 
 def remove_participation(request, pk):
+    user_ = get_user_in_token(request.META.get('HTTP_TOKEN'))
     post = get_object_or_404(Post, pk=pk)
-    bookmark = get_object_or_404(Participation, post=post, user=request.user)
+    bookmark = get_object_or_404(Participation, post=post, user=user_)
     bookmark.delete()
     post.attend_count -= 1
     post.save()

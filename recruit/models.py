@@ -87,5 +87,8 @@ class Participation(models.Model):
     post = models.ForeignKey('recruit.Post', related_name='bookmarks')
     user = models.ForeignKey('auth.User', related_name='users')
 
+    class Meta:
+        unique_together = ('post', 'user', )
+
     def __str__(self):
         return self.post.title

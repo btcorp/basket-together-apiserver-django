@@ -20,7 +20,7 @@ class Post(models.Model):
     meeting_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        managed = False     # 자동으로 테이블을 생성하지 않게 된다
+        # managed = False     # 자동으로 테이블을 생성하지 않게 된다
         ordering = ('-registered_date', )
 
     def __str__(self):

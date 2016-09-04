@@ -47,13 +47,15 @@ def post_list(request, page=1):
         contacts = None
         return JsonResponse({'message': 'Empty object'})
 
-    # args = dict()
-    # args.update(request)
-    # args['object_list'] = contacts.object_list
-    # args['num_pages'] = paginator.num_pages
+    args = dict()
+    args.update(request)
+    args['object_list'] = contacts.object_list
+    args['num_pages'] = paginator.num_pages
+    args['post_count'] = posts.count()
     # args['page'] = page
     # return JsonResponse([i.as_json() for i in contacts.object_list], safe=False)
-    return contacts.object_list
+    # return contacts.object_list
+    return args
 
 
 @csrf_exempt

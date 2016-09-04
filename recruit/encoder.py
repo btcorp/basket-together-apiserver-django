@@ -9,5 +9,7 @@ class JSONEncoder(DjangoJSONEncoder):
             return tuple(o)
         elif isinstance(o, Model):
             return o.as_json()
+        elif isinstance(o, dict):
+            return tuple(o)
         else:
             return super(JSONEncoder, self).default(o)

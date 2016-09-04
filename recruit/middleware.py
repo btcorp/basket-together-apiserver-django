@@ -8,7 +8,7 @@ from recruit.encoder import JSONEncoder
 
 class JSONMiddleware(object):
     def process_response(self, request, response):
-        if isinstance(response, (QuerySet, Model)):
+        if isinstance(response, (QuerySet, Model, dict)):
             return JsonResponse(response, safe=False, encoder=JSONEncoder,
                                 json_dumps_params={'ensure_ascii': False, 'sort_keys': True, 'indent': 4})
         return response

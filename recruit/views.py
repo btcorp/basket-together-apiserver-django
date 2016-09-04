@@ -61,11 +61,11 @@ def post_add(request):
 
 @csrf_exempt
 def post_detail(request, pk):
-    data = json.loads(request.body)
 
     if request.method == 'GET':
         return get_object_or_404(Post, pk=pk)
     elif request.method == 'PUT':
+        data = json.loads(request.body)
         post = get_object_or_404(Post, pk=pk)
         form = PostForm(data, instance=post)
         if form.is_valid():

@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 from django.db import models
 from django.utils import timezone
 
@@ -19,6 +21,7 @@ class Post(models.Model):
 
     class Meta:
         managed = False     # 자동으로 테이블을 생성하지 않게 된다
+        ordering = ('-registered_date', )
 
     def __str__(self):
         return self.title
@@ -74,8 +77,9 @@ class Comment(models.Model):
         return {
             'id': self.id,
             'content': self.content,
+            'author_id': self.author.id,
+            'author_name': self.author.username,
             'registered_date': self.registered_date,
-
         }
 
 

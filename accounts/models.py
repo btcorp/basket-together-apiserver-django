@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 import re
 from django.db import models
 from django.contrib.auth.models import User
@@ -17,9 +19,6 @@ def phonenumber_validator(value):
 
 class PhoneNumberField(models.CharField):
 
-    class Meta:
-        managed = False     # 자동으로 테이블을 생성하지 않게 된다
-
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('max_length', 15)
         kwargs.setdefault('validators', [])
@@ -36,8 +35,22 @@ class Profile(models.Model):
     penalty_count = models.IntegerField(blank=True, default=0)
     user_image = models.ImageField(blank=True, upload_to='%Y/%m/%d')
 
-    class Meta:
-        managed = False     # 자동으로 테이블을 생성하지 않게 된다
+    # class Meta:
+    #     managed = False     # 자동으로 테이블을 생성하지 않게 된다
+
+    def get_object(self):
+        return Profile.objects.get(user=self.request.user)
+
+    def as_json(self):
+        return {
+            'id': self.user.id,
+            'name': self.user.username,
+            'phone_number': self.phone_number,
+            'device_type': self.device_type,
+            'attend_count': self.attend_count,
+            'penalty_count': self.penalty_count,
+            # 'user_image': self.user_image
+        }
 
 
 class Friendship(models.Model):
@@ -45,7 +58,7 @@ class Friendship(models.Model):
     to_friend = models.ForeignKey(User, related_name='to_friends')
 
     class Meta:
-        managed = False  # 자동으로 테이블을 생성하지 않게 된다
+        # managed = False  # 자동으로 테이블을 생성하지 않게 된다
         unique_together = (('from_friend', 'to_friend'), )
 
     def __str__(self):

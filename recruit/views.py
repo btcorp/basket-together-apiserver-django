@@ -31,7 +31,11 @@ def get_user_in_token(token):
 
 
 def post_list_all(request):
-    return Post.objects.all()
+    posts = Post.objects.all()
+    if posts.exists():
+        return posts
+    else:
+        return JsonResponse({})
 
 
 def post_list(request, page=1):

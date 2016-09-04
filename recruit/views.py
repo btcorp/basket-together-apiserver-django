@@ -1,103 +1,96 @@
-import ast
-from django.contrib.auth import get_user_model
+# -*- coding: utf-8 -*-
+
+import json
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
-from django.shortcuts import render, render_to_response, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from recruit.models import Post, Comment
+from recruit.models import Post, Comment, Participation
 from recruit.forms import PostForm, CommentForm
 
-"""
-class JSONListView(ListView):
-    queryset = Post.objects.all()
-
-    def get(self, request, *args, **kwargs):
-        return JsonResponse(list(self.get_queryset().values()), safe=False)
-
-
-def jsonFormResponse(data):
-    return JsonResponse(
-        data, 
-        safe=False, 
-        json_dumps_params={
-            'ensure_ascii':False,
-            'separators':(',',':'), 
-            'sort_keys':True, 
-            'indent':4
-        }
-    )
+MESSAGE_POST_ADD = '글이 등록 되었습니다.'
+MESSAGE_POST_EDIT = '글이 수정 되었습니다.'
+MESSAGE_POST_DELETE = '글이 삭제 되었습니다.'
+MESSAGE_COMMENT_ADD = '댓글이 등록 되었습니다.'
+MESSAGE_COMMENT_EDIT = '댓글이 수정 되었습니다.'
+MESSAGE_COMMENT_DELETE = '댓글이 삭제 되었습니다.'
 
 
-def post_list(request):
-    # posts = Post.objects.all()
-    posts = Post.objects.all().values(
-            'id', 'title', 'content', 'recruit_count',
-            'attend_count', 'comment_count', 'registered_date',
-    )
-    return jsonFormResponse(list(posts))
-"""
-
-
-def post_list(request):
+def post_list_all(request):
     return Post.objects.all()
+
+
+def post_list(request, page=1):
+    try:
+        posts = Post.objects.all()
+        paginator = Paginator(posts, 3)
+        page_range = paginator.page_range
+        contacts = paginator.page(page)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        contacts = paginator.page(paginator.num_pages)
+    except ObjectDoesNotExist:
+        contacts = None
+        return JsonResponse({'message': 'Empty object'})
+
+    # args = dict()
+    # args.update(request)
+    # args['object_list'] = contacts.object_list
+    # args['num_pages'] = paginator.num_pages
+    # args['page'] = page
+    # return JsonResponse([i.as_json() for i in contacts.object_list], safe=False)
+    return contacts.object_list
 
 
 @csrf_exempt
 def post_add(request):
     if request.method == 'POST':
-        # bytes_to_dict = dict((request.body).decode('utf-8'))
-        byte_to_str = (request.body).decode('utf-8')
-        data = ast.literal_eval(byte_to_str)
+        data = json.loads(request.body)
         form = PostForm(data)
         if form.is_valid():
             post = form.save(commit=False)
-            user = get_user_model().objects.first()
+            user = request.user
             post.author = user
             post.save()
-            return post
+            return JsonResponse({'message': MESSAGE_POST_ADD}, status=201)
+        else:
+            return JsonResponse(form.errors, status=400)
+    return JsonResponse({'message': 'POST로 요청해 주십시요.'})
 
 
+@csrf_exempt
 def post_detail(request, pk):
-    return get_object_or_404(Post, pk=pk)
+    data = json.loads(request.body)
 
-
-def post_edit(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if request.method == 'POST':
-        form = PostForm(request.POST, instance=post)
-        post = form.save(commit=False)
-        post.author = request.user
-        post.save()
-        return redirect('recruit.views.post_detail', pk=pk)
-    else:
-        form = PostForm(instance=post)
-    return render(request, 'recruit/post_edit.html', {'form': form})
-
-
-def post_remove(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    post.delete()
-    return redirect('recruit.views.post_list')
+    if request.method == 'GET':
+        return get_object_or_404(Post, pk=pk)
+    elif request.method == 'PUT':
+        post = get_object_or_404(Post, pk=pk)
+        form = PostForm(data, instance=post)
+        if form.is_valid():
+            post.save()
+            return JsonResponse({'message': MESSAGE_POST_EDIT}, status=201)
+    elif request.method == 'DELETE':
+        post = get_object_or_404(Post, pk=pk)
+        post.delete()
+        return JsonResponse({'message': MESSAGE_POST_DELETE}, status=204)
 
 
 @csrf_exempt
 def add_comment_to_post(request, pk):
-    byte_to_str = (request.body).decode('utf-8')
-    data = ast.literal_eval(byte_to_str)
+    data = json.loads(request.body)
     post = get_object_or_404(Post, pk=pk)
-    form = CommentForm(content=data['content'])
+    form = CommentForm(data)
 
     if form.is_valid():
-        try:
-            comment = form.save(commit=False)
-            comment.author = request.user
-            comment.post = post
-            comment.save()
-            return JsonResponse({'message': 'Comments were registed.'})
-        except ObjectDoesNotExist:
-            return JsonResponse({'message': 'Comments were not registed.'})
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post
+        comment.save()
+        return JsonResponse({'message': MESSAGE_COMMENT_ADD})
     else:
-        return JsonResponse({'message': 'Form data is invalid.'})
+        return JsonResponse(form.errors)
 
 
 def comments_to_post(request, pk):
@@ -106,14 +99,33 @@ def comments_to_post(request, pk):
     return comments
 
 
+@csrf_exempt
 def post_search(request):
-    word = request.POST['word']
+    data = json.loads(request.body)
+    word = data['word']
     posts = Post.objects.filter(title__contains=word) or Post.objects.filter(content__contains=word)
-    return render(request, 'recruit/post_list.html', {'posts': posts})
+    return posts
 
 
 def comment_remove(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
-    post_pk = comment.post.pk
     comment.delete()
-    return redirect('recruit.views.post_detail', pk=post_pk)
+    return JsonResponse({'message': MESSAGE_COMMENT_DELETE}, status=204)
+
+
+def add_participation(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    next_url = request.GET.get('next', '')
+    Participation.objects.create(post=post, user=request.user)
+    post.attend_count += 1
+    post.save()
+    return JsonResponse({'message': '참여가 완료 되었습니다.', 'next_url': next_url}, status=201)
+
+
+def remove_participation(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    bookmark = get_object_or_404(Participation, post=post, user=request.user)
+    bookmark.delete()
+    post.attend_count -= 1
+    post.save()
+    return JsonResponse({'message': '참여가 취소 되었습니다.'}, status=204)

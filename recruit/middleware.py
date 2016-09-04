@@ -10,5 +10,5 @@ class JSONMiddleware(object):
     def process_response(self, request, response):
         if isinstance(response, (QuerySet, Model)):
             return JsonResponse(response, safe=False, encoder=JSONEncoder,
-                                json_dumps_params={'ensure_ascii': False})
+                                json_dumps_params={'ensure_ascii': False, 'sort_keys': True, 'indent': 4})
         return response

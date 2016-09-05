@@ -39,23 +39,16 @@ def post_list_all(request):
 
 
 def post_list(request, page=1):
-    try:
-        posts = Post.objects.all()
-        paginator = Paginator(posts, 3)
-        page_range = paginator.page_range
-        contacts = paginator.page(page)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        contacts = paginator.page(paginator.num_pages)
-    except ObjectDoesNotExist:
-        contacts = None
-        return JsonResponse({'message': 'Empty object'})
+    posts = Post.objects.all()
+    paginator = Paginator(posts, 10)
+    page_range = paginator.page_range
+    contacts = paginator.page(page)
 
     args = dict()
     args.update(request)
-    args['object_list'] = contacts.object_list
-    args['num_pages'] = paginator.num_pages
-    args['post_count'] = posts.count()
+    args['post_list'] = contacts.object_list
+    args['total_page'] = paginator.num_pages
+    args['total_count'] = posts.count()
     # args['page'] = page
     # return JsonResponse([i.as_json() for i in contacts.object_list], safe=False)
     # return contacts.object_list

@@ -30,6 +30,15 @@ def get_user_in_token(token):
     return token_.user
 
 
+def set_error_message_json(message, status=None):
+    return JsonResponse(
+        {'message': message},
+        json_dumps_params={'ensure_ascii': False},
+        safe=False,
+        status=status
+    )
+
+
 def post_list_all(request):
     posts = Post.objects.all()
     if posts.exists():
@@ -64,10 +73,10 @@ def post_add(request):
             post = form.save(commit=False)
             post.author = get_user_in_token(request.META.get('HTTP_TOKEN'))
             post.save()
-            return JsonResponse({'message': MESSAGE_POST_ADD}, status=201)
+            return set_error_message_json(MESSAGE_POST_ADD, 201)
         else:
             return JsonResponse(form.errors, status=400)
-    return JsonResponse({'message': 'POST로 요청해 주십시요.'})
+    return set_error_message_json('POST로 요청해 주십시요.')
 
 
 @csrf_exempt
@@ -81,11 +90,11 @@ def post_detail(request, pk):
         form = PostForm(data, instance=post)
         if form.is_valid():
             post.save()
-            return JsonResponse({'message': MESSAGE_POST_EDIT}, status=201)
+            return set_error_message_json(MESSAGE_POST_EDIT, 201)
     elif request.method == 'DELETE':
         post = get_object_or_404(Post, pk=pk)
         post.delete()
-        return JsonResponse({'message': MESSAGE_POST_DELETE}, status=204)
+        return set_error_message_json(MESSAGE_POST_DELETE, 204)
 
 
 @csrf_exempt
@@ -99,7 +108,7 @@ def add_comment_to_post(request, pk):
         comment.author = get_user_in_token(request.META.get('HTTP_TOKEN'))
         comment.post = post
         comment.save()
-        return JsonResponse({'message': MESSAGE_COMMENT_ADD})
+        return set_error_message_json(MESSAGE_COMMENT_ADD, 201)
     else:
         return JsonResponse(form.errors)
 
@@ -121,7 +130,7 @@ def post_search(request):
 def comment_remove(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
     comment.delete()
-    return JsonResponse({'message': MESSAGE_COMMENT_DELETE}, status=204)
+    return set_error_message_json(MESSAGE_COMMENT_DELETE, 204)
 
 
 def add_participation(request, pk):
@@ -131,7 +140,7 @@ def add_participation(request, pk):
     Participation.objects.create(post=post, user=user_)
     post.attend_count += 1
     post.save()
-    return JsonResponse({'message': '참여가 완료 되었습니다.', 'next_url': next_url}, status=201)
+    return set_error_message_json('참여가 완료 되었습니다.', 201)
 
 
 def remove_participation(request, pk):
@@ -141,4 +150,4 @@ def remove_participation(request, pk):
     bookmark.delete()
     post.attend_count -= 1
     post.save()
-    return JsonResponse({'message': '참여가 취소 되었습니다.'}, status=204)
+    return set_error_message_json('참여가 취소 되었습니다.', 204)

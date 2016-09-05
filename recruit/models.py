@@ -37,6 +37,7 @@ class Post(models.Model):
             'title': self.title,
             'content': self.content,
             'recruit_count': self.recruit_count,
+            'attend_list': self.participations.all(),
             'attend_count': self.attend_count,
             'comments': self.comments.all(),
             'comments_count': self.comments.all().count(),
@@ -84,7 +85,7 @@ class Comment(models.Model):
 
 
 class Participation(models.Model):
-    post = models.ForeignKey('recruit.Post', related_name='bookmarks')
+    post = models.ForeignKey('recruit.Post', related_name='participations')
     user = models.ForeignKey('auth.User', related_name='users')
 
     class Meta:
@@ -92,3 +93,11 @@ class Participation(models.Model):
 
     def __str__(self):
         return self.post.title
+
+    def as_json(self):
+        return {
+            'id': self.id,
+            'post_id': self.post.id,
+            'user_id': self.user.id,
+            'user_name': self.user.username,
+        }

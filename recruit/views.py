@@ -19,18 +19,18 @@ MESSAGE_COMMENT_DELETE = '댓글이 삭제 되었습니다.'
 
 
 # byte to string 헬퍼 메서드
-def decoding_byte_to_string(byte_data):
-    bytes_to_string = byte_data.decode('utf-8')
+def decoding_byte_to_string(request):
+    bytes_to_string = (request.body).decode('utf-8')
     return json.loads(bytes_to_string)
 
 
 # token 값으로 유저 출력
-def get_user_in_token(token):
-    token_ = Token.objects.get(pk=token)
+def get_user_in_token(request):
+    token_ = Token.objects.get(pk=request.META.get('HTTP_TOKEN'))
     return token_.user
 
 
-def set_error_message_json(message, status=None):
+def output_message_json(message, status=None):
     return JsonResponse(
         {'message': message},
         json_dumps_params={'ensure_ascii': False},
@@ -67,16 +67,16 @@ def post_list(request, page=1):
 @csrf_exempt
 def post_add(request):
     if request.method == 'POST':
-        data = decoding_byte_to_string(request.body)
+        data = decoding_byte_to_string(request)
         form = PostForm(data)
         if form.is_valid():
             post = form.save(commit=False)
-            post.author = get_user_in_token(request.META.get('HTTP_TOKEN'))
+            post.author = get_user_in_token(request)
             post.save()
-            return set_error_message_json(MESSAGE_POST_ADD, 201)
+            return output_message_json(MESSAGE_POST_ADD, 201)
         else:
             return JsonResponse(form.errors, status=400)
-    return set_error_message_json('POST로 요청해 주십시요.')
+    return output_message_json('POST로 요청해 주십시요.')
 
 
 @csrf_exempt
@@ -85,30 +85,30 @@ def post_detail(request, pk):
     if request.method == 'GET':
         return get_object_or_404(Post, pk=pk)
     elif request.method == 'PUT':
-        data = decoding_byte_to_string(request.body)
+        data = decoding_byte_to_string(request)
         post = get_object_or_404(Post, pk=pk)
         form = PostForm(data, instance=post)
         if form.is_valid():
             post.save()
-            return set_error_message_json(MESSAGE_POST_EDIT, 201)
+            return output_message_json(MESSAGE_POST_EDIT, 201)
     elif request.method == 'DELETE':
         post = get_object_or_404(Post, pk=pk)
         post.delete()
-        return set_error_message_json(MESSAGE_POST_DELETE, 204)
+        return output_message_json(MESSAGE_POST_DELETE, 204)
 
 
 @csrf_exempt
 def add_comment_to_post(request, pk):
-    data = decoding_byte_to_string(request.body)
+    data = decoding_byte_to_string(request)
     post = get_object_or_404(Post, pk=pk)
     form = CommentForm(data)
 
     if form.is_valid():
         comment = form.save(commit=False)
-        comment.author = get_user_in_token(request.META.get('HTTP_TOKEN'))
+        comment.author = get_user_in_token(request)
         comment.post = post
         comment.save()
-        return set_error_message_json(MESSAGE_COMMENT_ADD, 201)
+        return output_message_json(MESSAGE_COMMENT_ADD, 201)
     else:
         return JsonResponse(form.errors)
 
@@ -121,7 +121,7 @@ def comments_to_post(request, pk):
 
 @csrf_exempt
 def post_search(request):
-    data = decoding_byte_to_string(request.body)
+    data = decoding_byte_to_string(request)
     word = data['word']
     posts = Post.objects.filter(title__contains=word) or Post.objects.filter(content__contains=word)
     return posts
@@ -130,24 +130,24 @@ def post_search(request):
 def comment_remove(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
     comment.delete()
-    return set_error_message_json(MESSAGE_COMMENT_DELETE, 204)
+    return output_message_json(MESSAGE_COMMENT_DELETE, 204)
 
 
 def add_participation(request, pk):
-    user_ = get_user_in_token(request.META.get('HTTP_TOKEN'))
+    user_ = get_user_in_token(request)
     post = get_object_or_404(Post, pk=pk)
     next_url = request.GET.get('next', '')
     Participation.objects.create(post=post, user=user_)
     post.attend_count += 1
     post.save()
-    return set_error_message_json('참여가 완료 되었습니다.', 201)
+    return output_message_json('참여가 완료 되었습니다.', 201)
 
 
 def remove_participation(request, pk):
-    user_ = get_user_in_token(request.META.get('HTTP_TOKEN'))
+    user_ = get_user_in_token(request)
     post = get_object_or_404(Post, pk=pk)
     bookmark = get_object_or_404(Participation, post=post, user=user_)
     bookmark.delete()
     post.attend_count -= 1
     post.save()
-    return set_error_message_json('참여가 취소 되었습니다.', 204)
+    return output_message_json('참여가 취소 되었습니다.', 204)

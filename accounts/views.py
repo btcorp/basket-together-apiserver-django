@@ -1,21 +1,42 @@
+# -*- coding:utf-8 -*-
+
 import ast
-from accounts.forms import ProfileForm
-from django.contrib.auth.decorators import login_required
+import json
+from accounts.forms import ProfileForm, UserForm
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import model_to_dict
-from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render_to_response
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login
 from rest_framework.authtoken import views as rest_views
-from rest_framework.decorators import api_view
+from rest_framework.authtoken.models import Token
+
+
+# byte to string 헬퍼 메서드
+def decoding_byte_to_string(request):
+    bytes_to_string = (request.body).decode('utf-8')
+    return json.loads(bytes_to_string)
+
+
+# token 값으로 유저 출력
+def get_user_in_token(request):
+    token_ = Token.objects.get(pk=request.META.get('HTTP_TOKEN'))
+    return token_.user
+
+
+def output_message_json(message, status=None):
+    return JsonResponse(
+        {'message': message},
+        json_dumps_params={'ensure_ascii': False},
+        safe=False,
+        status=status
+    )
 
 
 @csrf_exempt
 def signup(request):
-    bytes_to_string = (request.body).decode()
-    data = ast.literal_eval(bytes_to_string)
+    data = decoding_byte_to_string(request)
     form = UserCreationForm(data)
     if form.is_valid():
         user = form.save()
@@ -26,8 +47,7 @@ def signup(request):
 
 @csrf_exempt
 def login_view(request):
-    bytes_to_string = (request.body).decode()
-    data = ast.literal_eval(bytes_to_string)
+    data = decoding_byte_to_string(request)
     username = data.get('username')
     password = data.get('password')
     user = authenticate(username=username, password=password)
@@ -39,23 +59,26 @@ def login_view(request):
         login(request, user)
         return rest_views.ObtainAuthToken.as_view()(request)    # create token
     else:
-        return JsonResponse({'message': 'It is error.'})
+        return output_message_json('ID 및 비밀번호가 존재하지 않습니다.')
 
 
 @csrf_exempt
-@login_required
 def user_profile(request):
+    """
+    Form to update User profile
+    """
+    user_ = get_user_in_token(request)
+
     if request.method == 'POST':
-        form = ProfileForm(request.POST, instance=request.user.profile)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('loggedin.html')
+        data = decoding_byte_to_string(request)
+        profileForm = ProfileForm(data, instance=user_.profile)
+        userForm = UserForm(data, instance=user_)
+        if profileForm.is_valid() and userForm.is_valid():
+            profileForm.save()
+            userForm.save()
+            return output_message_json('프로필이 변경 되었습니다.', 201)
     else:
-        form = ProfileForm(instance=request.user.profile)
+        profileForm = ProfileForm(instance=user_.profile)
+        userForm = UserForm(instance=user_)
 
-    args = {}
-    # args.update(csrf(request))
-    args.update(request)
-
-    args['form'] = form
-    return render_to_response('profile.html', args)
+    return userForm.instance

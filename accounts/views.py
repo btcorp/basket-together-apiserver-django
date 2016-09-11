@@ -2,7 +2,7 @@
 
 import ast
 import json
-from accounts.forms import ProfileForm, UserForm
+from accounts.forms import UserProfileForm, UserForm
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import model_to_dict
@@ -71,14 +71,14 @@ def user_profile(request):
 
     if request.method == 'POST':
         data = decoding_byte_to_string(request)
-        profileForm = ProfileForm(data, instance=user_.profile)
+        profileForm = UserProfileForm(data, instance=user_.profile)
         userForm = UserForm(data, instance=user_)
         if profileForm.is_valid() and userForm.is_valid():
             profileForm.save()
             userForm.save()
             return output_message_json('프로필이 변경 되었습니다.', 201)
     else:
-        profileForm = ProfileForm(instance=user_.profile)
+        profileForm = UserProfileForm(instance=user_.profile)
         userForm = UserForm(instance=user_)
 
     return userForm.instance

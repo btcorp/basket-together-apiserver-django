@@ -24,7 +24,7 @@ class Post(models.Model):
     content = models.TextField()
     registered_date = models.DateTimeField(default=change_timezone)
     recruit_count = models.IntegerField()
-    attend_count = models.IntegerField(default=1)
+    attend_count = models.IntegerField(default=0)
     recruit_status = models.IntegerField(choices=RECRUIT_STATUS, default=0)   # 0:모집중, 1:모집완료
     address1 = models.CharField(max_length=100)
     address2 = models.CharField(max_length=100)

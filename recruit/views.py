@@ -73,6 +73,7 @@ def post_add(request):
             post = form.save(commit=False)
             post.author = get_user_in_token(request)
             post.save()
+            add_participation(request, post.id)
             return output_message_json(MESSAGE_POST_ADD, 201)
         else:
             return JsonResponse(form.errors, status=400)

@@ -151,4 +151,4 @@ def remove_participation(request, pk):
     bookmark.delete()
     post.attend_count -= 1
     post.save()
-    return output_message_json('참여가 취소 되었습니다.', 204)
+    return output_message_json('참여가 취소 되었습니다.', 201)

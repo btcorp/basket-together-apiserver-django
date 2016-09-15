@@ -8,8 +8,9 @@ from django.forms import model_to_dict
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login
-from rest_framework.authtoken import views as rest_views
 from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.response import Response
 
 
 # byte to string 헬퍼 메서드
@@ -56,7 +57,7 @@ def login_view(request):
         except ObjectDoesNotExist:
             pass
         login(request, user)
-        return rest_views.ObtainAuthToken.as_view()(request)    # create token
+        return create_auth_token(request)    # create token
     else:
         return output_message_json('ID 및 비밀번호가 존재하지 않습니다.')
 
@@ -81,3 +82,14 @@ def user_profile(request):
         userForm = UserForm(instance=user_)
 
     return userForm.instance
+
+
+class CreateAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key, 'user_id': user.id})
+
+create_auth_token = CreateAuthToken.as_view()

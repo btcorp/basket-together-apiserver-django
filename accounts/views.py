@@ -2,8 +2,7 @@
 
 import ast
 import json
-from accounts.forms import UserProfileForm, UserForm
-from django.contrib.auth.forms import UserCreationForm
+from accounts.forms import UserProfileForm, UserForm, SignupForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import model_to_dict
 from django.http import JsonResponse
@@ -37,7 +36,7 @@ def output_message_json(message, status=None):
 @csrf_exempt
 def signup(request):
     data = decoding_byte_to_string(request)
-    form = UserCreationForm(data)
+    form = SignupForm(data)
     if form.is_valid():
         user = form.save()
         user_dict = model_to_dict(user, fields=['id', 'username'])

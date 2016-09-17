@@ -57,6 +57,8 @@ class Post(models.Model):
             'registered_date': self.registered_date,
             'recruit_status': self.recruit_status,
             'meeting_date': self.meeting_date,
+            'adress1': self.address1,
+            'adress2': self.address2,
             'lat': self.lat,
             'lng': self.lng,
         }

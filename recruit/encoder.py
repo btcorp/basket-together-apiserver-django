@@ -15,6 +15,6 @@ class JSONEncoder(DjangoJSONEncoder):
             return o.as_json()
         elif isinstance(o, datetime):
             # return o.strftime(DATETIME_FORMAT)
-            return time.mktime(o.timetuple())
+            return (time.mktime(o.timetuple()))*1000
         else:
             return super(JSONEncoder, self).default(o)

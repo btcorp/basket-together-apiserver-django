@@ -2,6 +2,7 @@
 
 import ast
 import json
+from accounts.models import Profile
 from accounts.forms import UserProfileForm, UserForm, SignupForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import model_to_dict
@@ -40,6 +41,9 @@ def signup(request):
     form = SignupForm(data)
     if form.is_valid():
         user = form.save()
+        profile = user.get_profile()
+        profile.nickname = data.get('nickname')
+        profile.save()
         user_dict = model_to_dict(user, fields=['id', 'username'])
         return JsonResponse(user_dict)
     return JsonResponse(form.errors)
@@ -71,14 +75,14 @@ def user_profile(request):
 
     if request.method == 'POST':
         data = decoding_byte_to_string(request)
-        profileForm = UserProfileForm(data, instance=user_.profile)
+        profileForm = UserProfileForm(data, instance=user_.get_profile())
         userForm = UserForm(data, instance=user_)
         if profileForm.is_valid() and userForm.is_valid():
             profileForm.save()
             userForm.save()
             return output_message_json('프로필이 변경 되었습니다.', 201)
     else:
-        profileForm = UserProfileForm(instance=user_.profile)
+        profileForm = UserProfileForm(instance=user_.get_profile())
         userForm = UserForm(instance=user_)
 
     return userForm.instance
@@ -90,6 +94,6 @@ class CreateAuthToken(ObtainAuthToken):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key, 'user_id': user.id})
+        return Response({'token': token.key, 'user_id': user.id, 'nickname': user.get_profile().nickname})
 
 create_auth_token = CreateAuthToken.as_view()

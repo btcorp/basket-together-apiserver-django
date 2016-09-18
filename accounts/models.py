@@ -51,6 +51,7 @@ class Profile(models.Model):
     def as_json(self):
         return {
             'user_id': self.user.id,
+            'nickname': self.nickname,
             'user_name': self.user.username,
             'email': self.user.email,
             'phone_number': self.phone_number,
@@ -93,6 +94,12 @@ class ExtendedUser(AbstractUser):
     def get_profile(self):
         return self.profile
 
+    def save(self, *args, **kwargs):
+        is_new = self.id is None
+        super(ExtendedUser, self).save(*args, **kwargs)
+        if is_new:
+            Profile.objects.create(user=self)
 
-ExtendedUser.profile = property(lambda user: Profile.objects.get_or_create(user=user)[0])
+
+# ExtendedUser.profile = property(lambda user: Profile.objects.get_or_create(user=user)[0])
 

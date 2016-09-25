@@ -8,5 +8,4 @@ urlpatterns = [
     url(r'^login/$', views.login_view, name='login'),
     # url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', name='logout'),
     url(r'^profile/$', views.user_profile, name='user_profile'),
-    url(r'^(?P<id>\d+)/picture/$', views.get_picture, name='get_picture'),
 ]

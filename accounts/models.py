@@ -15,6 +15,11 @@ def phonenumber_validator(value):
         raise ValidationError('휴대폰 번호를 입력해주세요.')
 
 
+def user_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'user/{0}/{1}'.format(instance.user.id, filename)
+
+
 class PhoneNumberField(models.CharField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('max_length', 15)
@@ -31,16 +36,16 @@ class Profile(models.Model):
     )
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    nickname = models.CharField(max_length=20, blank=True)
+    nickname = models.CharField(max_length=200, blank=True)
     phone_number = PhoneNumberField(max_length=12, blank=True)
     device_type = models.CharField(max_length=10, choices=DEVICE_TYPE, default='ANDROID')
     join_path = models.CharField(max_length=20, default='general')
     attend_count = models.IntegerField(blank=True, default=0)
     penalty_count = models.IntegerField(blank=True, default=0)
-    user_image = models.ImageField(blank=True, upload_to='%Y/%m/%d')
+    user_image = models.ImageField(blank=True, upload_to=user_directory_path)
 
-    class Meta:
-        managed = False     # 자동으로 테이블을 생성하지 않게 된다
+    # class Meta:
+    #     managed = False     # 자동으로 테이블을 생성하지 않게 된다
 
     def __str__(self):  # __unicode__ on Python 2
         return self.user.username
@@ -67,7 +72,7 @@ class Friendship(models.Model):
     to_friend = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='to_friends')
 
     class Meta:
-        managed = False
+        # managed = False
         unique_together = (('from_friend', 'to_friend'), )
 
     def __str__(self):
@@ -88,8 +93,8 @@ class ExtendedUser(AbstractUser):
         },
     )
 
-    class Meta:
-        managed = False
+    # class Meta:
+    #     managed = False
 
     def get_profile(self):
         return self.profile
@@ -100,6 +105,13 @@ class ExtendedUser(AbstractUser):
         if is_new:
             Profile.objects.create(user=self)
 
+    def as_json(self):
+        return {
+            'user_id': self.id,
+            'user_name': self.username,
+            'email': self.email,
+        }
 
-# ExtendedUser.profile = property(lambda user: Profile.objects.get_or_create(user=user)[0])
+
+ExtendedUser.profile = property(lambda user: Profile.objects.get_or_create(user=user)[0])
 

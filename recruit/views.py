@@ -39,6 +39,7 @@ def output_message_json(message, status=None):
     )
 
 
+@csrf_exempt
 def post_list_all(request):
     posts = Post.objects.all()
     if posts.exists():
@@ -47,6 +48,7 @@ def post_list_all(request):
         return JsonResponse({})
 
 
+@csrf_exempt
 def post_list(request, page=1):
     posts = Post.objects.all()
     paginator = Paginator(posts, 10)

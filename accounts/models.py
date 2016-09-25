@@ -53,6 +53,12 @@ class Profile(models.Model):
     def get_object(self):
         return Profile.objects.get(user=self.request.user)
 
+    def get_image_url(self):
+        if self.user_image:
+            return self.user_image.url
+        else:
+            return None
+
     def as_json(self):
         return {
             'user_id': self.user.id,
@@ -63,7 +69,7 @@ class Profile(models.Model):
             'device_type': self.device_type,
             'attend_count': self.attend_count,
             'penalty_count': self.penalty_count,
-            # 'user_image': self.user_image
+            'user_image': self.user_image
         }
 
 

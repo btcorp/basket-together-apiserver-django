@@ -82,14 +82,6 @@ def user_profile(request):
     return profileForm.errors
 
 
-def get_picture(request, id):
-    user = get_user_model().objects.get(id=id)
-    if user.profile.user_image is not None:
-        return user.profile.user_image.url
-    else:
-        return None
-
-
 class CreateAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -100,7 +92,7 @@ class CreateAuthToken(ObtainAuthToken):
             'token': token.key,
             'user_id': user.id,
             'nickname': user.get_profile().nickname,
-            'picture_url': get_picture(request, user.id),
+            'picture_url': user.profile.get_image_url(),
         })
 
 create_auth_token = CreateAuthToken.as_view()

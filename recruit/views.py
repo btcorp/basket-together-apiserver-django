@@ -18,12 +18,6 @@ MESSAGE_COMMENT_EDIT = '댓글이 수정 되었습니다.'
 MESSAGE_COMMENT_DELETE = '댓글이 삭제 되었습니다.'
 
 
-# byte to string 헬퍼 메서드
-def decoding_byte_to_string(request):
-    bytes_to_string = (request.body).decode('utf-8')
-    return json.loads(bytes_to_string)
-
-
 # token 값으로 유저 출력
 def get_user_in_token(request):
     token_ = Token.objects.get(pk=request.META.get('HTTP_TOKEN'))
@@ -69,8 +63,7 @@ def post_list(request, page=1):
 @csrf_exempt
 def post_add(request):
     if request.method == 'POST':
-        data = decoding_byte_to_string(request)
-        form = PostForm(data)
+        form = PostForm(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = get_user_in_token(request)
@@ -88,9 +81,8 @@ def post_detail(request, pk):
     if request.method == 'GET':
         return get_object_or_404(Post, pk=pk)
     elif request.method == 'PUT':
-        data = decoding_byte_to_string(request)
         post = get_object_or_404(Post, pk=pk)
-        form = PostForm(data, instance=post)
+        form = PostForm(request.POST, instance=post)
         if form.is_valid():
             post.save()
             return output_message_json(MESSAGE_POST_EDIT, 201)
@@ -102,9 +94,8 @@ def post_detail(request, pk):
 
 @csrf_exempt
 def add_comment_to_post(request, pk):
-    data = decoding_byte_to_string(request)
     post = get_object_or_404(Post, pk=pk)
-    form = CommentForm(data)
+    form = CommentForm(request.POST)
 
     if form.is_valid():
         comment = form.save(commit=False)
@@ -124,8 +115,7 @@ def comments_to_post(request, pk):
 
 @csrf_exempt
 def post_search(request):
-    data = decoding_byte_to_string(request)
-    word = data['word']
+    word = request.POST.get('word')
     posts = Post.objects.filter(title__contains=word) or Post.objects.filter(content__contains=word)
     return posts
 

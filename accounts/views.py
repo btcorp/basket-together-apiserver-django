@@ -5,7 +5,7 @@ import json
 import urllib
 from accounts.models import Profile
 from accounts.forms import UserProfileForm, UserForm, SignupForm
-from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth import authenticate, login, get_user_model, logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from django.forms import model_to_dict
@@ -13,22 +13,13 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
+from basket_together.json_data_format import output_message_json
 
 
 # token 값으로 유저 출력
 def get_user_in_token(request):
     token_ = Token.objects.get(pk=request.META.get('HTTP_TOKEN'))
     return token_.user
-
-
-def output_message_json(message, status=None):
-    return JsonResponse(
-        {'message': message},
-        json_dumps_params={'ensure_ascii': False},
-        safe=False,
-        status=status
-    )
-
 
 @csrf_exempt
 def signup(request):
@@ -56,7 +47,13 @@ def login_view(request):
         login(request, user)
         return create_auth_token(request)    # create token
     else:
-        return output_message_json('ID 및 비밀번호가 존재하지 않습니다.')
+        return output_message_json(message='ID 및 비밀번호가 존재하지 않습니다.')
+
+
+@csrf_exempt
+def logout_view(request):
+    logout(request);
+    return output_message_json(statusCode=0000)
 
 
 @csrf_exempt
@@ -74,7 +71,7 @@ def user_profile(request):
         if profileForm.is_valid():
             profileForm.save()
             userForm.save()
-            return output_message_json('프로필이 변경 되었습니다.', 201)
+            return output_message_json(201, message='프로필이 변경 되었습니다.')
     else:
         profileForm = UserProfileForm(instance=user_.get_profile())
         userForm = UserForm(instance=user_)

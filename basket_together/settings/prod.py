@@ -12,10 +12,10 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', SECRET_KEY)
 
 DATABASES = {
     'default' : {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ubuntu',
-        'USER': 'ubuntu',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'basket_together',
+        'USER': 'postgres',
         'PASSWORD': '1234qwer',
-        'HOST': '127.0.0.1',
+        'HOST': 'localhost',
     }
 }

@@ -44,8 +44,8 @@ class Profile(models.Model):
     penalty_count = models.IntegerField(blank=True, default=0)
     user_image = models.ImageField(blank=True, upload_to=user_directory_path)
 
-    # class Meta:
-    #     managed = False     # 자동으로 테이블을 생성하지 않게 된다
+    class Meta:
+        managed = False     # 자동으로 테이블을 생성하지 않게 된다
 
     def __str__(self):  # __unicode__ on Python 2
         return self.user.username
@@ -55,7 +55,7 @@ class Profile(models.Model):
 
     def get_image_url(self):
         if self.user_image:
-            return self.user_image.url
+            return self.user_image.url[1:]
         else:
             return None
 
@@ -78,7 +78,7 @@ class Friendship(models.Model):
     to_friend = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='to_friends')
 
     class Meta:
-        # managed = False
+        managed = False
         unique_together = (('from_friend', 'to_friend'), )
 
     def __str__(self):
@@ -99,8 +99,8 @@ class ExtendedUser(AbstractUser):
         },
     )
 
-    # class Meta:
-    #     managed = False
+    class Meta:
+        managed = False
 
     def get_profile(self):
         return self.profile

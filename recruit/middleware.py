@@ -2,13 +2,13 @@ import json
 from django.http import JsonResponse
 from django.db.models.query import QuerySet
 from django.db.models import Model
-from django.shortcuts import get_object_or_404
 from recruit.encoder import JSONEncoder
+from basket_together.json_data_format import *
 
 
 class JSONMiddleware(object):
     def process_response(self, request, response):
         if isinstance(response, (QuerySet, Model, dict)):
-            return JsonResponse(response, safe=False, encoder=JSONEncoder,
-                                json_dumps_params={'ensure_ascii': False, 'sort_keys': True, 'indent': 4})
+            data = JsonResponse(response, safe=False, encoder=JSONEncoder)
+            return output_format_json_response(200, statusCode='0000', data=json.loads(data.content))
         return response

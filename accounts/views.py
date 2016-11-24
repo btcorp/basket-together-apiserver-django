@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
-from basket_together.json_data_format import output_message_json
+from basket_together.json_data_format import *
 
 
 # token 값으로 유저 출력
@@ -47,13 +47,13 @@ def login_view(request):
         login(request, user)
         return create_auth_token(request)    # create token
     else:
-        return output_message_json(message='ID 및 비밀번호가 존재하지 않습니다.')
+        return output_format_json_response(message='ID 및 비밀번호가 존재하지 않습니다.')
 
 
 @csrf_exempt
 def logout_view(request):
     logout(request);
-    return output_message_json(statusCode=0000)
+    return output_format_json_response(statusCode=0000)
 
 
 @csrf_exempt
@@ -71,7 +71,7 @@ def user_profile(request):
         if profileForm.is_valid():
             profileForm.save()
             userForm.save()
-            return output_message_json(201, message='프로필이 변경 되었습니다.')
+            return output_format_json_response(201, message='프로필이 변경 되었습니다.')
     else:
         profileForm = UserProfileForm(instance=user_.get_profile())
         userForm = UserForm(instance=user_)
@@ -85,11 +85,12 @@ class CreateAuthToken(ObtainAuthToken):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
-        return Response({
+        user_data = {
             'token': token.key,
             'user_id': user.id,
             'nickname': user.get_profile().nickname,
             'picture_url': user.profile.get_image_url(),
-        })
+        }
+        return output_format_response(200, statusCode='0000', data=user_data)
 
 create_auth_token = CreateAuthToken.as_view()

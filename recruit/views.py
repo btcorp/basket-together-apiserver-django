@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import json
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.core.paginator import Paginator, EmptyPage
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from recruit.models import Post, Comment, Participation
-from recruit.forms import PostForm, CommentForm
 from rest_framework.authtoken.models import Token
+
 from basket_together.json_data_format import *
+from recruit.forms import PostForm, CommentForm
+from recruit.models import Post, Comment, Participation
 
 MESSAGE_POST_ADD = '글이 등록 되었습니다.'
 MESSAGE_POST_EDIT = '글이 수정 되었습니다.'
@@ -39,16 +37,17 @@ def post_list(request, page=1):
     posts = Post.objects.all()
     paginator = Paginator(posts, 10)
     page_range = paginator.page_range
-    contacts = paginator.page(page)
+
+    try:
+        contacts = paginator.page(page)
+    except EmptyPage:
+        return output_format_json_response(message='해당 페이지가 없습니다.')
 
     args = dict()
-    args.update(request)
+    # args.update(request)
     args['post_list'] = contacts.object_list
     args['total_page'] = paginator.num_pages
     args['total_count'] = posts.count()
-    # args['page'] = page
-    # return JsonResponse([i.as_json() for i in contacts.object_list], safe=False)
-    # return contacts.object_list
     return args
 
 
@@ -64,7 +63,6 @@ def post_add(request):
             return output_format_json_response(201, message=MESSAGE_POST_ADD)
         else:
             return output_format_json_response(400, message=form.errors)
-            # return JsonResponse(form.errors, status=400)
     return output_format_json_response(message='POST로 요청해 주십시요.')
 
 
@@ -100,6 +98,7 @@ def add_comment_to_post(request, pk):
         return JsonResponse(form.errors)
 
 
+@csrf_exempt
 def comments_to_post(request, pk):
     post = Post.objects.get(pk=pk)
     comments = Comment.objects.filter(post=post)

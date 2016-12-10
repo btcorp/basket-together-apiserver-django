@@ -36,6 +36,7 @@ class Profile(models.Model):
     )
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    email = models.EmailField(_('email address'), blank=True)
     nickname = models.CharField(max_length=200, blank=True)
     phone_number = PhoneNumberField(max_length=12, blank=True)
     device_type = models.CharField(max_length=10, choices=DEVICE_TYPE, default='ANDROID')
@@ -64,7 +65,7 @@ class Profile(models.Model):
             'user_id': self.user.id,
             'nickname': self.nickname,
             'user_name': self.user.username,
-            'email': self.user.email,
+            'email': self.email,
             'phone_number': self.phone_number,
             'device_type': self.device_type,
             'attend_count': self.attend_count,

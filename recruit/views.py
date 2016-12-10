@@ -60,7 +60,7 @@ def post_add(request):
             post.author = get_user_in_token(request)
             post.save()
             add_participation(request, post.id)
-            return output_format_json_response(201, message=MESSAGE_POST_ADD)
+            return output_format_json_response(201, message=MESSAGE_POST_ADD, statusCode='0000')
         else:
             return output_format_json_response(400, message=form.errors)
     return output_format_json_response(message='POST로 요청해 주십시요.')
@@ -76,11 +76,11 @@ def post_detail(request, pk):
         form = PostForm(request.POST, instance=post)
         if form.is_valid():
             post.save()
-            return output_format_json_response(201, message=MESSAGE_POST_EDIT)
+            return output_format_json_response(201, message=MESSAGE_POST_EDIT, statusCode='0000')
     elif request.method == 'DELETE':
         post = get_object_or_404(Post, pk=pk)
         post.delete()
-        return output_format_json_response(204, message=MESSAGE_POST_DELETE)
+        return output_format_json_response(204, message=MESSAGE_POST_DELETE, statusCode='0000')
 
 
 @csrf_exempt
@@ -93,7 +93,7 @@ def add_comment_to_post(request, pk):
         comment.author = get_user_in_token(request)
         comment.post = post
         comment.save()
-        return output_format_json_response(201, message=MESSAGE_COMMENT_ADD)
+        return output_format_json_response(201, message=MESSAGE_COMMENT_ADD, statusCode='0000')
     else:
         return JsonResponse(form.errors)
 
@@ -115,7 +115,7 @@ def post_search(request):
 def comment_remove(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
     comment.delete()
-    return output_format_json_response(204, message=MESSAGE_COMMENT_DELETE)
+    return output_format_json_response(204, message=MESSAGE_COMMENT_DELETE, statusCode='0000')
 
 
 def add_participation(request, pk):
@@ -125,7 +125,7 @@ def add_participation(request, pk):
     Participation.objects.create(post=post, user=user_)
     post.attend_count += 1
     post.save()
-    return output_format_json_response(201, message='참여가 완료 되었습니다.')
+    return output_format_json_response(201, message='참여가 완료 되었습니다.', statusCode='0000')
 
 
 def remove_participation(request, pk):
@@ -135,4 +135,4 @@ def remove_participation(request, pk):
     bookmark.delete()
     post.attend_count -= 1
     post.save()
-    return output_format_json_response(201, message='참여가 취소 되었습니다.')
+    return output_format_json_response(201, message='참여가 취소 되었습니다.', statusCode='0000')

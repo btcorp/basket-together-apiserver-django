@@ -71,7 +71,7 @@ def user_profile(request):
         if profileForm.is_valid():
             profileForm.save()
             userForm.save()
-            return output_format_json_response(201, message='프로필이 변경 되었습니다.')
+            return output_format_json_response(201, message='프로필이 변경 되었습니다.', statusCode='0000')
     else:
         profileForm = UserProfileForm(instance=user_.get_profile())
         userForm = UserForm(instance=user_)
